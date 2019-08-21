@@ -88,6 +88,66 @@ class GameController extends Controller
     }
 
     public function result(){
-        return view("home.result");
+        $UserName = Session::get('UserName');
+        $dt = Carbon::now()->toTimeString();
+        $dt = str_replace( ':', '', $dt );
+        $GameRepository = new \App\Http\Repositories\GameRepository();
+        $ShowBetLists = $GameRepository->showbetlists($UserName);
+        $ShowBetListsCount = $GameRepository->showbetlistscount($UserName);
+        $i = 0;    
+        
+        while ($i < $ShowBetListsCount){
+            $BetLists = $GameRepository->betlists();
+            $close = $BetLists[$i]['close'];
+            $win = 0;
+            $CloseTime = $ShowBetLists[$i]['closetime'];
+            $CloseTime = str_replace( ':', '', $CloseTime );
+                
+            if ($dt > $CloseTime) {
+                $type = '已結算';
+                $BetId = $ShowBetLists[$i]['id'];
+                $BetCode = $ShowBetLists[$i]['code'];
+                $BetCode_exp = explode('|', $BetCode);
+                $BetIssue = $ShowBetLists[$i]['issue'];
+                $GameCode = $GameRepository->gamecode($BetIssue);
+                $GameCode = $GameCode[0]['code'];
+                $GameCodeLen = strlen($GameCode);
+                $j = 0;
+
+                while ($j < $GameCodeLen-1) {   
+                    $GameCode = substr($GameCode, $j, 1);
+                        
+                    if ($BetCode_exp[$j] == $GameCode) {
+                        $win = $win + 1;
+                        $WinMoney = $ShowBetLists[$i]['money'] * $win * 2;
+                        $GetMoney = $WinMoney - $ShowBetLists[$i]['money'];
+
+                        /*if (!$close == 'ok') {
+                            $ch = curl_init();
+                            curl_setopt($ch, CURLOPT_URL, "http://bank:9090/insert?name=$UserName&money=$GetMoney");
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                            $temp = curl_exec($ch);
+                            curl_close($ch);
+                            $UpdateBetList = $GameRepository->updatebetlist($BetId);
+                            $close = 'ok';
+                        }*/
+                    } else {
+                        $WinMoney = $ShowBetLists[$i]['money'] * $win * 2;
+                        $GetMoney = $WinMoney - $ShowBetLists[$i]['money'];
+
+                        /*if (!$close == 'ok') {
+                            $UpdateBetList = $GameRepository->updatebetlist($BetId);
+                            $close = 'ok';
+                        }*/
+                    }
+                    $j++;
+                }
+                $i++;
+            } else {
+                $type = '未結算';
+            }
+        }
+        
+        return view('home.result', compact('ShowBetLists', 'type', 'WinMoney', 'GetMoney'));
     }
 }
