@@ -18,3 +18,5 @@ Route::get('/index/main',"GameController@main");
 Route::get('/index/pay',"GameController@pay");
 Route::post('/index/pay',"GameController@postpay");
 
+
+Route::get('/index/result',"GameController@result");

@@ -25,9 +25,16 @@ class GameRepository
         return $gamelist;
     }
 
-    public function paymoney($number, $money){
+    public function gamelistcount(){
+        $this->gamelist = new Gamelist;
+        $gamelistcount = $this->gamelist->count();
+        return $gamelistcount;
+    }
+
+    public function addbetlist($UserName, $Addissue, $code, $money){
         $dt = Carbon::now();
         $this->betlist = new Betlist;
-        $this->betlist->insert(array('name' => "david", 'issue' => '20190816001', 'code' => "{$number}", 'money' => "{$money}", 'time' => "{$dt}"));
+        $this->betlist->insert(array('name' => "{$UserName}", 'issue' => "{$Addissue}", 'code' => "{$code}", 'money' => "{$money}", 'time' => "{$dt}"));
     }
+
 }
