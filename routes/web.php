@@ -12,4 +12,9 @@
 */
 
 Route::get('/index',"GameController@index");
-Route::post('/index/pay',"GameController@pay");
+Route::post('/index/login',"GameController@login");
+Route::get('/index/main',"GameController@main");
+
+Route::get('/index/pay',"GameController@pay");
+Route::post('/index/pay',"GameController@postpay");
+
