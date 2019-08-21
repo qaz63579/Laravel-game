@@ -17,6 +17,7 @@
         <hr>
 		下注：<input type="text" name="money"/>
         <input type="submit" value="付款"/>	
+        <a href="/index/main "><label for="male">回首頁</a>
 	</form>
 </body>
 </html>

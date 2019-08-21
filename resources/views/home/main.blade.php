@@ -9,7 +9,8 @@
 <body>
     Welcome {{ $UserName }} !<br>
     <a href="/index/pay"><label for="male">去下注</a>
-    <a href="/index/pay"><label for="male">看結果</a>
+    <a href="/index/result"><label for="male">看結果</a>
+    <a href="/index"><label for="male">登出</a>
     <hr>
     @foreach ($GameLists as $GameList) 
         <p>{{ $GameList->issue }} | {{ $GameList->code }} | {{ $GameList->opentime }} | {{ $GameList->closetime }}</p>
