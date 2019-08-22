@@ -9,8 +9,9 @@
 <body>
     @foreach ($ShowBetLists as $ShowBetList) 
         <p>期數：{{ $ShowBetList->issue }} 賽果：{{ $ShowBetList->code }} 金額：{{ $ShowBetList->money }} 結算時間：{{ $ShowBetList->closetime }}</p>
-        狀態：{{ $type }} 總額：{{ $WinMoney }} 獲利：{{ $GetMoney }} 入款：
+        <p>結果：{{ $ShowBetList->winmoney }} 淨獲利：{{ $ShowBetList->getmoney }} 入賬：{{ $ShowBetList->close }}</p>
         <hr>
+     
     @endforeach
 </body>
 </html>
