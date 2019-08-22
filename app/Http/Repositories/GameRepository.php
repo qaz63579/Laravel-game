@@ -34,13 +34,13 @@ class GameRepository
     public function addbetlist($UserName, $Addissue, $code, $money){
         $dt = Carbon::now();
         $this->betlist = new Betlist;
-        $this->betlist->insert(array('name' => "{$UserName}", 'issue' => "{$Addissue}", 'code' => "{$code}", 'money' => "{$money}", 'time' => "{$dt}", 'close' => ''));
+        $this->betlist->insert(array('name' => "{$UserName}", 'issue' => "{$Addissue}", 'code' => "{$code}", 'money' => "{$money}", 'time' => "{$dt}", 'winmoney' => '', 'winmoney' => '', 'close' => ''));
     }
 
     public function showbetlists($UserName){
         $this->betlist = new Betlist;
         $ShowBetLists = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
-                                      ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime')
+                                      ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime','betlist.winmoney', 'betlist.getmoney', 'betlist.close')
                                       ->where('betlist.name', $UserName)
                                       ->get();
         return $ShowBetLists;
@@ -55,20 +55,14 @@ class GameRepository
         return $ShowBetListscount;
     }
 
-    public function betlists(){
-        $this->betlists = new Betlist;
-        $betlists = $this->betlists->select('close')->get();
-        return $betlists;
-    }
-
     public function gamecode($BetIssue){
         $this->gamecode = new Gamelist;
         $gamecode = $this->gamecode->select('code')->where('issue', $BetIssue)->get();
         return $gamecode;
     }
 
-    public function updatebetlist($BetId){
+    public function updatebetlist($BetId, $WinMoney, $GetMoney){
         $this->updatebetlist = new Betlist;
-        $this->updatebetlist->where('id', "{$BetId}")->update(array('close' => "ok"));
+        $this->updatebetlist->where('id', "{$BetId}")->update(array('winmoney' => "{$WinMoney}", 'getmoney' => "{$GetMoney}", 'close' => "ok"));
     }
 }

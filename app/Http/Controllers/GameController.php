@@ -12,9 +12,8 @@ class GameController extends Controller
         if (Session::has('UserName')){
             Session::forget('UserName');
         } else {
-            exit();
+            return view("home.index");
         }
-        return view("home.index");
     }
 
     public function login(Request $Request){
@@ -96,16 +95,12 @@ class GameController extends Controller
         $ShowBetListsCount = $GameRepository->showbetlistscount($UserName);
         $i = 0;    
         
-        while ($i < $ShowBetListsCount){
-            $BetLists = $GameRepository->betlists();
-            $close = $BetLists[$i]['close'];
-            $win = 0;
+        while ($i < $ShowBetListsCount-1){
             $CloseTime = $ShowBetLists[$i]['closetime'];
             $CloseTime = str_replace( ':', '', $CloseTime );
+            
+            if ($dt >= $CloseTime) {
                 
-            if ($dt > $CloseTime) {
-                $type = '已結算';
-                $BetId = $ShowBetLists[$i]['id'];
                 $BetCode = $ShowBetLists[$i]['code'];
                 $BetCode_exp = explode('|', $BetCode);
                 $BetIssue = $ShowBetLists[$i]['issue'];
@@ -113,41 +108,41 @@ class GameController extends Controller
                 $GameCode = $GameCode[0]['code'];
                 $GameCodeLen = strlen($GameCode);
                 $j = 0;
+                $win = 0; 
 
                 while ($j < $GameCodeLen-1) {   
-                    $GameCode = substr($GameCode, $j, 1);
-                        
+                    $GameCode = substr($GameCode, $j, 1);  
+                    
                     if ($BetCode_exp[$j] == $GameCode) {
                         $win = $win + 1;
                         $WinMoney = $ShowBetLists[$i]['money'] * $win * 2;
                         $GetMoney = $WinMoney - $ShowBetLists[$i]['money'];
-
-                        /*if (!$close == 'ok') {
+                        
+                        if($ShowBetLists[$i]['close'] == ''){
                             $ch = curl_init();
                             curl_setopt($ch, CURLOPT_URL, "http://bank:9090/insert?name=$UserName&money=$GetMoney");
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             $temp = curl_exec($ch);
                             curl_close($ch);
-                            $UpdateBetList = $GameRepository->updatebetlist($BetId);
-                            $close = 'ok';
-                        }*/
+                            $BetId = $ShowBetLists[$i]['id'];
+                            $UpdateBetList = $GameRepository->updatebetlist($BetId, $WinMoney, $GetMoney);
+                        }
                     } else {
                         $WinMoney = $ShowBetLists[$i]['money'] * $win * 2;
                         $GetMoney = $WinMoney - $ShowBetLists[$i]['money'];
-
-                        /*if (!$close == 'ok') {
-                            $UpdateBetList = $GameRepository->updatebetlist($BetId);
-                            $close = 'ok';
-                        }*/
+                        
+                        if($ShowBetLists[$i]['close'] == ''){
+                            $BetId = $ShowBetLists[$i]['id'];
+                            $UpdateBetList = $GameRepository->updatebetlist($BetId, $WinMoney, $GetMoney);
+                        }
                     }
                     $j++;
                 }
-                $i++;
-            } else {
-                $type = '未結算';
             }
+            $i++;
         }
         
-        return view('home.result', compact('ShowBetLists', 'type', 'WinMoney', 'GetMoney'));
+        
+        return view('home.result', compact('ShowBetLists'));
     }
 }
