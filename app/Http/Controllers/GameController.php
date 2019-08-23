@@ -11,6 +11,7 @@ class GameController extends Controller
     public function index(){
         if (Session::has('UserName')){
             Session::forget('UserName');
+            return view("home.index");
         } else {
             return view("home.index");
         }
@@ -31,8 +32,8 @@ class GameController extends Controller
     public function main(){
         $UserName = Session::get('UserName');
         $GameRepository = new \App\Http\Repositories\GameRepository();
-        $GameLists = $GameRepository->gamelist();
-        return view("home.main", compact('GameLists', 'UserName'));
+        $ShowBetLists = $GameRepository->showbetlists($UserName);
+        return view("home.main", compact('ShowBetLists', 'UserName'));
     }
 
     public function pay(){
@@ -46,7 +47,7 @@ class GameController extends Controller
         $hundred = $Request->hundred;
         $ten = $Request->ten;
         $one = $Request->one;
-        $code = $million.'|'.$thousand.'|'.$hundred.'|'.$ten.'|'.$one;
+        $code = $million.','.$thousand.','.$hundred.','.$ten.','.$one;
         $money = $Request->money;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "http://bank:9090/search?name=$UserName");
@@ -54,6 +55,7 @@ class GameController extends Controller
         $temp = curl_exec($ch);
         curl_close($ch);
         $isTrue = json_decode($temp, true);
+        $Addissue = '';
 
         if ($isTrue['money'] >= $money) {
             $dt = Carbon::now()->toTimeString();
@@ -63,17 +65,18 @@ class GameController extends Controller
             $GameListsCount = $GameRepository->gamelistcount();
             $i = 0;
 
-            while ($i < $GameListsCount-1){
+            while ($i < $GameListsCount){
                 $OpenTime = $GameLists[$i]['opentime'];
                 $CloseTime = $GameLists[$i]['closetime'];
                 $OpenTime = str_replace( ':', '', $OpenTime );
                 $CloseTime = str_replace( ':', '', $CloseTime );
 
-                if ($dt >= $OpenTime and $dt <= $CloseTime){
+                if ($dt > $OpenTime and $dt < $CloseTime){
                     $Addissue = $GameLists[$i]['issue'];
                 }
                 $i++;
             }
+            
             $AddBetList = $GameRepository->addbetlist($UserName, $Addissue, $code, $money);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "http://bank:9090/out?name=$UserName&money=$money");
@@ -81,6 +84,7 @@ class GameController extends Controller
             $temp = curl_exec($ch);
             curl_close($ch);
             echo '下注完成,扣款成功';
+            return redirect('/index/main');
         } else {
             echo '餘額不足,扣款失敗';
         }
@@ -95,54 +99,100 @@ class GameController extends Controller
         $ShowBetListsCount = $GameRepository->showbetlistscount($UserName);
         $i = 0;    
         
-        while ($i < $ShowBetListsCount-1){
+        while ($i < $ShowBetListsCount){
             $CloseTime = $ShowBetLists[$i]['closetime'];
             $CloseTime = str_replace( ':', '', $CloseTime );
             
-            if ($dt >= $CloseTime) {
-                
+            if ($dt > $CloseTime) {
                 $BetCode = $ShowBetLists[$i]['code'];
-                $BetCode_exp = explode('|', $BetCode);
+                $BetCode_exp = explode(',', $BetCode);
                 $BetIssue = $ShowBetLists[$i]['issue'];
                 $GameCode = $GameRepository->gamecode($BetIssue);
                 $GameCode = $GameCode[0]['code'];
-                $GameCodeLen = strlen($GameCode);
+                $GameCode_exp = explode('|', $GameCode);
+                $BetId = $ShowBetLists[$i]['id'];
                 $j = 0;
                 $win = 0; 
 
-                while ($j < $GameCodeLen-1) {   
-                    $GameCode = substr($GameCode, $j, 1);  
-                    
-                    if ($BetCode_exp[$j] == $GameCode) {
+                while ($j < 5) {
+                
+                    if ($BetCode_exp[$j] == $GameCode_exp[$j]){
                         $win = $win + 1;
-                        $WinMoney = $ShowBetLists[$i]['money'] * $win * 2;
-                        $GetMoney = $WinMoney - $ShowBetLists[$i]['money'];
-                        
-                        if($ShowBetLists[$i]['close'] == ''){
-                            $ch = curl_init();
-                            curl_setopt($ch, CURLOPT_URL, "http://bank:9090/insert?name=$UserName&money=$GetMoney");
-                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                            $temp = curl_exec($ch);
-                            curl_close($ch);
-                            $BetId = $ShowBetLists[$i]['id'];
-                            $UpdateBetList = $GameRepository->updatebetlist($BetId, $WinMoney, $GetMoney);
-                        }
+                        $j = $j + 1;
                     } else {
-                        $WinMoney = $ShowBetLists[$i]['money'] * $win * 2;
-                        $GetMoney = $WinMoney - $ShowBetLists[$i]['money'];
-                        
-                        if($ShowBetLists[$i]['close'] == ''){
-                            $BetId = $ShowBetLists[$i]['id'];
-                            $UpdateBetList = $GameRepository->updatebetlist($BetId, $WinMoney, $GetMoney);
-                        }
+                        $j = $j + 1;
                     }
-                    $j++;
+                }
+                
+                $GetMoney = $ShowBetLists[$i]['money'] * $win * 2;
+                $GetMoney = $GetMoney - $ShowBetLists[$i]['money'];
+                
+                if($ShowBetLists[$i]['close'] == 'No'){
+                    $GameRepository->updatebetlist($BetId, $GetMoney, $UserName);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, "http://bank:9090/insert?name=$UserName&money=$GetMoney");
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    $temp = curl_exec($ch);
+                    curl_close($ch);
                 }
             }
+
             $i++;
+            
+        }
+        return view('home.result', compact('ShowBetLists', 'UserName'));
+    }
+
+    public function server(){
+        $GameRepository = new \App\Http\Repositories\GameRepository();
+        $GameRepository->cleargamelist();
+        $dt = Carbon::now()->toDateString();
+        $dt = str_replace( '-', '', $dt );
+        $OpenTime = '09:20:00';
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "http://curlapi:9092/regextest.php");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $temp = curl_exec($ch);
+        curl_close($ch); 
+        $temp = json_decode($temp, true);
+        $i = count($temp) - 1;
+
+        while ($i > -1){
+
+            $DataIssue = strstr($temp[$i],',',true);
+            $DataIssue = substr($DataIssue, 0, 11);
+
+            if (strpos($DataIssue, '0823')) {
+                $DataCode = strstr($temp[$i], ',');
+                $DataCode = substr($DataCode, 2, 14);
+                $OpenTime = str_replace( ':', '', $OpenTime );
+                $CloseTime = $OpenTime + 1959;
+                
+                if (strlen($OpenTime) < 8) {
+                    $OpenTime = substr($OpenTime, 0, 2).':'.substr($OpenTime, 2, 2).':'.substr($OpenTime, 4, 2);
+                }
+
+                if (strlen($CloseTime) < 6) {
+                    $CloseTime = '0'.$CloseTime;
+                }
+
+                $CloseTime = substr($CloseTime, 0, 2).':'.substr($CloseTime, 2, 2).':'.substr($CloseTime, 4, 2);
+                $AddGameList = $GameRepository->addgamelist($DataIssue, $DataCode, $OpenTime, $CloseTime);
+                $OpenTime = str_replace( ':', '', $OpenTime );
+                $CloseTime = str_replace( ':', '', $CloseTime );
+                $OpenTime = $CloseTime + 41;
+
+                if (strlen($OpenTime) < 6){
+                    $OpenTime = '0'.$OpenTime;
+                }
+
+                if ($OpenTime >= substr($OpenTime, 0, 2).'6000') {
+                    $OpenTime = $OpenTime + 4000;
+                }
+            } 
+  
+            $i = $i - 1;
         }
         
-        
-        return view('home.result', compact('ShowBetLists'));
     }
 }
