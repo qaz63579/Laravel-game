@@ -7,11 +7,12 @@
     <title>Result</title>
 </head>
 <body>
+    <a href="/index/main"><label for="male">回主頁</a>
+    <hr>
     @foreach ($ShowBetLists as $ShowBetList) 
         <p>期數：{{ $ShowBetList->issue }} 賽果：{{ $ShowBetList->code }} 金額：{{ $ShowBetList->money }} 結算時間：{{ $ShowBetList->closetime }}</p>
-        <p>結果：{{ $ShowBetList->winmoney }} 淨獲利：{{ $ShowBetList->getmoney }} 入賬：{{ $ShowBetList->close }}</p>
+        <p>輸贏金額：{{ $ShowBetList->getmoney }} 結算：{{ $ShowBetList->close }} 派彩：{{ $ShowBetList->gift }}</p>
         <hr>
-     
     @endforeach
 </body>
 </html>
