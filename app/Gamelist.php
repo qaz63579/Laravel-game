@@ -9,4 +9,5 @@ class Gamelist extends Model
     protected $table = 'gamelist';
     protected $primanykey = 'id';
     public $timestamps = 'false';
+    protected $fillable = ['issue','code'];
 }

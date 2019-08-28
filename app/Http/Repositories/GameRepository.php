@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use App\Betlist;
 use App\Menber;
 use App\Gamelist;
+use App\time;
 use Carbon\Carbon;
 
 class GameRepository
@@ -74,5 +75,41 @@ class GameRepository
     public function cleargamelist(){
         $this->gamelist = new Gamelist;
         $this->gamelist->truncate();
+    }
+
+    public function insertGameList($issue,$code)
+    {
+        $insert = new Gamelist;
+        $insert-> issue = $issue;
+        $insert-> code = $code;
+        $insert->save();
+    }
+
+    public function GetNewestIssue()
+    {
+        $getIssue = new Gamelist;
+        $data = $getIssue->select('issue')->orderBy('issue','DESC')->limit(1)->get();
+        return $data;
+    }
+
+    public function GetTimeTable()
+    {
+        $getTable = new time;
+        $data = $getTable->select('issue_num','opentime','closetime')->orderBy('issue_num','ASC')->get();
+        return $data;
+    }
+
+    public function InsertBetlist($name,$issue,$code,$money)
+    {
+        $insert = new Betlist;
+        $insert->name = $name;
+        $insert->issue = $issue;
+        $insert->code = $code;
+        $insert->money=$money;
+        $insert->getmoney = '---';
+        $insert->close='No';
+        $insert->gift='No';
+        $insert->save();
+
     }
 }

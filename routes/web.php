@@ -19,5 +19,11 @@ Route::get('/index/pay',"GameController@pay");
 Route::post('/index/pay',"GameController@postpay");
 
 Route::get('/index/result',"GameController@result");
+Route::get('/info',"GameController@info");
 
-Route::get('/server',"GameController@server");
+Route::get('/redis',"RedisController@index");
+
+
+
+// Route::get('/server',"GameController@server");
+// Route::get('/content',"ContentController@index");

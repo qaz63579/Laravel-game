@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Session;
 use Carbon\Carbon;
+use App\Http\Repositories\GameRepository;
+use Datetime;
 
 class GameController extends Controller
 {
@@ -47,47 +49,56 @@ class GameController extends Controller
         $hundred = $Request->hundred;
         $ten = $Request->ten;
         $one = $Request->one;
-        $code = $million.','.$thousand.','.$hundred.','.$ten.','.$one;
+        $code = '0'.$million.',0'.$thousand.',0'.$hundred.',0'.$ten.',0'.$one;
         $money = $Request->money;
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://bank:9090/search?name=$UserName");
+        curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:9090/search?name=$UserName");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $temp = curl_exec($ch);
         curl_close($ch);
         $isTrue = json_decode($temp, true);
-        $Addissue = '';
 
-        if ($isTrue['money'] >= $money) {
-            $dt = Carbon::now()->toTimeString();
-            $dt = str_replace( ':', '', $dt );
-            $GameRepository = new \App\Http\Repositories\GameRepository();
-            $GameLists = $GameRepository->gamelist();
-            $GameListsCount = $GameRepository->gamelistcount();
-            $i = 0;
 
-            while ($i < $GameListsCount){
-                $OpenTime = $GameLists[$i]['opentime'];
-                $CloseTime = $GameLists[$i]['closetime'];
-                $OpenTime = str_replace( ':', '', $OpenTime );
-                $CloseTime = str_replace( ':', '', $CloseTime );
-
-                if ($dt > $OpenTime and $dt < $CloseTime){
-                    $Addissue = $GameLists[$i]['issue'];
-                }
-                $i++;
-            }
-            
-            $AddBetList = $GameRepository->addbetlist($UserName, $Addissue, $code, $money);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "http://bank:9090/out?name=$UserName&money=$money");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $temp = curl_exec($ch);
-            curl_close($ch);
-            echo '下注完成,扣款成功';
-            return redirect('/index/main');
-        } else {
-            echo '餘額不足,扣款失敗';
+        if ($isTrue['money'] < $money){
+            return '餘額不足,扣款失敗';
         }
+
+
+        $dt = Carbon::now();
+        $GameRepository = new GameRepository;
+        $TimeTable = $GameRepository->GetTimeTable();
+        $now =DateTime::createFromFormat('H:i:s',$dt->toTimeString());
+        $issue;
+
+
+        foreach ($TimeTable as $key => $value) { //取得目前期數
+            $opentime = DateTime::createFromFormat('H:i:s',$value['opentime']);
+            $closetime =DateTime::createFromFormat('H:i:s',$value['closetime']);
+            if($now>=$opentime && $now <= $closetime ){
+                $issue = $value['issue_num'];
+            }
+        }
+        $str = str_replace('-','',$dt->toDateString());
+        $issue = $str .'-' . $issue;        
+        $GameRepository->InsertBetlist($UserName,$issue,$code,$money); //新增下注資料
+
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:9090/out?name=$UserName&money=$money");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $temp = curl_exec($ch);
+        curl_close($ch);
+        echo '下注完成,扣款成功';
+
+        return redirect('/index/main');
+
+
+
+        
+
+
+        return $issue;
+
     }
 
     public function result(){
@@ -142,57 +153,43 @@ class GameController extends Controller
         }
         return view('home.result', compact('ShowBetLists', 'UserName'));
     }
-
-    public function server(){
-        $GameRepository = new \App\Http\Repositories\GameRepository();
-        $GameRepository->cleargamelist();
-        $dt = Carbon::now()->toDateString();
-        $dt = str_replace( '-', '', $dt );
-        $OpenTime = '09:20:00';
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://curlapi:9092/regextest.php");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $temp = curl_exec($ch);
-        curl_close($ch); 
-        $temp = json_decode($temp, true);
-        $i = count($temp) - 1;
-
-        while ($i > -1){
-
-            $DataIssue = strstr($temp[$i],',',true);
-            $DataIssue = substr($DataIssue, 0, 11);
-
-            if (strpos($DataIssue, '0823')) {
-                $DataCode = strstr($temp[$i], ',');
-                $DataCode = substr($DataCode, 2, 14);
-                $OpenTime = str_replace( ':', '', $OpenTime );
-                $CloseTime = $OpenTime + 1959;
-                
-                if (strlen($OpenTime) < 8) {
-                    $OpenTime = substr($OpenTime, 0, 2).':'.substr($OpenTime, 2, 2).':'.substr($OpenTime, 4, 2);
-                }
-
-                if (strlen($CloseTime) < 6) {
-                    $CloseTime = '0'.$CloseTime;
-                }
-
-                $CloseTime = substr($CloseTime, 0, 2).':'.substr($CloseTime, 2, 2).':'.substr($CloseTime, 4, 2);
-                $AddGameList = $GameRepository->addgamelist($DataIssue, $DataCode, $OpenTime, $CloseTime);
-                $OpenTime = str_replace( ':', '', $OpenTime );
-                $CloseTime = str_replace( ':', '', $CloseTime );
-                $OpenTime = $CloseTime + 41;
-
-                if (strlen($OpenTime) < 6){
-                    $OpenTime = '0'.$OpenTime;
-                }
-
-                if ($OpenTime >= substr($OpenTime, 0, 2).'6000') {
-                    $OpenTime = $OpenTime + 4000;
-                }
-            } 
-  
-            $i = $i - 1;
-        }
-        
+    public function info()
+    {
+        echo phpinfo();
+        return "";
     }
+
+    // public function server(){
+        
+    //     $data = file_get_contents('http://www.tjflcpw.com/report/ssc_jiben_report.aspx?term_num=100');
+    //     preg_match_all('/["][0-9\W]{29}["]/', $data, $output_array);
+
+    //     $str = $output_array[0]; // $str[0] 格式為:"20190823009", "02|05|01|07|09"
+
+
+    //     for($i=0 ; $i<sizeof($str) ; $i++ )
+    //     {
+    //         $str2 = preg_replace('/[2][0-9]{7}/', '$0-', $str[$i]); // str2 = "20190823-009", "02|05|01|07|09"
+    //         preg_match('/[2][0-9\W]{11}/', $str2, $str3); // $str3[0] = "20190823-008"
+    //         preg_match('/([0-9]{2}[|]){4}[0-9]{2}/', $str2, $str4); // $str4[0] = "02|05|01|07|09"
+    //         $str4[0]=str_replace("|",",",$str4[0]);
+    //         $data_arr[$str3[0]]=$str4[0];
+    //     }
+
+    //     foreach ($data_arr as $issue => $code) {
+    //         $GameRepository = new \App\Http\Repositories\GameRepository();
+    //         try {
+    //             $GameRepository->insertGameList($issue,$code);
+    //         } catch (\Throwable $th) {
+
+    //         }
+            
+    //     }
+
+
+    //     return $data_arr;
+        
+
+        
+    // }
 }
