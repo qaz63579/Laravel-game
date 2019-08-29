@@ -22,6 +22,8 @@ Route::get('/index/result',"GameController@result");
 Route::get('/info',"GameController@info");
 
 Route::get('/redis',"RedisController@index");
+Route::get('/issue',"RedisController@InsertIssue");
+Route::get('/code',"RedisController@RenewCode");
 
 
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Repositories;
 
 use Illuminate\Support\Facades\DB;
@@ -14,102 +15,125 @@ class GameRepository
     public $menber;
     public $gamelist;
 
-    public function login($UserName, $PassWord){
+    public function login($UserName, $PassWord)
+    {
         $this->menber = new Menber;
         $login = $this->menber->where('username', $UserName)->where('password', $PassWord)->count();
         return $login;
     }
 
-    public function gamelist(){
+    public function gamelist()
+    {
         $this->gamelist = new Gamelist;
         $gamelist = $this->gamelist->get();
         return $gamelist;
     }
 
-    public function gamelistcount(){
+    public function gamelistcount()
+    {
         $this->gamelist = new Gamelist;
         $gamelistcount = $this->gamelist->count();
         return $gamelistcount;
     }
 
-    public function addbetlist($UserName, $Addissue, $code, $money){
+    public function addbetlist($UserName, $Addissue, $code, $money)
+    {
         $dt = Carbon::now();
         $this->betlist = new Betlist;
         $this->betlist->insert(array('name' => "{$UserName}", 'issue' => "{$Addissue}", 'code' => "{$code}", 'money' => "{$money}", 'time' => "{$dt}", 'getmoney' => '---', 'close' => 'No', 'gift' => 'No'));
     }
 
-    public function showbetlists($UserName){
+    public function showbetlists($UserName)
+    {
         $this->betlist = new Betlist;
         $ShowBetLists = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
-                                      ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney', 'betlist.close', 'betlist.gift')
-                                      ->where('betlist.name', $UserName)
-                                      ->get();
+            ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney', 'betlist.close', 'betlist.gift')
+            ->where('betlist.name', $UserName)
+            ->get();
         return $ShowBetLists;
     }
 
-    public function showbetlistscount($UserName){
+    public function showbetlistscount($UserName)
+    {
         $this->betlist = new Betlist;
         $ShowBetListscount = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
-                                      ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney', 'betlist.close', 'betlist.gift')
-                                      ->where('betlist.name', $UserName)
-                                      ->count();
+            ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney', 'betlist.close', 'betlist.gift')
+            ->where('betlist.name', $UserName)
+            ->count();
         return $ShowBetListscount;
     }
 
-    public function gamecode($BetIssue){
+    public function gamecode($BetIssue)
+    {
         $this->gamelist = new Gamelist;
         $gamecode = $this->gamelist->select('code')->where('issue', $BetIssue)->get();
         return $gamecode;
     }
 
-    public function updatebetlist($BetId, $GetMoney, $UserName){
+    public function updatebetlist($BetId, $GetMoney, $UserName)
+    {
         $this->betlist = new Betlist;
         $this->betlist->where('id', "{$BetId}")->where('name', "{$UserName}")->update(array('getmoney' => "{$GetMoney}", 'close' => "ok", 'gift' => 'ok'));
     }
 
-    public function addgamelist($DataIssie, $DataCode, $OpenTime, $CloseTime){
+    public function addgamelist($DataIssie, $DataCode, $OpenTime, $CloseTime)
+    {
         $this->gamelist = new Gamelist;
         $this->gamelist->insert(array('issue' => "{$DataIssie}", 'code' => "{$DataCode}", 'opentime' => "{$OpenTime}", 'closetime' => "{$CloseTime}"));
     }
 
-    public function cleargamelist(){
+    public function cleargamelist()
+    {
         $this->gamelist = new Gamelist;
         $this->gamelist->truncate();
     }
 
-    public function insertGameList($issue,$code)
+    public function insertGameList($issue, $code)
     {
         $insert = new Gamelist;
-        $insert-> issue = $issue;
-        $insert-> code = $code;
+        $insert->issue = $issue;
+        $insert->code = $code;
         $insert->save();
     }
 
     public function GetNewestIssue()
     {
         $getIssue = new Gamelist;
-        $data = $getIssue->select('issue')->orderBy('issue','DESC')->limit(1)->get();
+        $data = $getIssue->select('issue')->orderBy('issue', 'DESC')->limit(1)->get();
         return $data;
     }
 
     public function GetTimeTable()
     {
         $getTable = new time;
-        $data = $getTable->select('issue_num','opentime','closetime')->orderBy('issue_num','ASC')->get();
+        $data = $getTable->select('issue_num', 'opentime', 'closetime')->orderBy('issue_num', 'ASC')->get();
         return $data;
     }
 
-    public function InsertBetlist($name,$issue,$code,$money)
+    public function InsertBetlist($name, $issue, $code, $money)
     {
         $insert = new Betlist;
         $insert->name = $name;
         $insert->issue = $issue;
         $insert->code = $code;
-        $insert->money=$money;
+        $insert->money = $money;
         $insert->getmoney = '---';
-        $insert->close='No';
-        $insert->gift='No';
+        $insert->close = 'No';
+        $insert->gift = 'No';
         $insert->save();
+    }
 
+    public function InsertDayIssue($issue,$opentime,$closetime)
+    {
+        $insert = new Gamelist;
+        $insert->issue = $issue;
+        $insert->opentime= $opentime;
+        $insert->closetime= $closetime;
+        $insert->save();
+    }
+
+    public function UpdateCode()
+    {
+        
     }
 }
