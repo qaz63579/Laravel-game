@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Session;
 use Carbon\Carbon;
 use App\Http\Repositories\GameRepository;
+use Illuminate\Support\Facades\Redis;
 use Datetime;
 
 class GameController extends Controller
@@ -70,12 +71,20 @@ class GameController extends Controller
 
 
         $dt = Carbon::now();
-        $GameRepository = new GameRepository;
-        $TimeTable = $GameRepository->GetTimeTable();
+
         $now = DateTime::createFromFormat('H:i:s', $dt->toTimeString());
         //$issue;
 
+        $str = date_format($now, 'H:i:s') . $UserName;
+        if (Redis::get($UserName) == md5($str)) {
+            return '一秒只能連線一次';
+        } else {
+            Redis::set($UserName, md5($str));
+            Redis::expire($UserName,3);
+        }
 
+        $GameRepository = new GameRepository;
+        $TimeTable = $GameRepository->GetTimeTable();
         foreach ($TimeTable as $key => $value) { //取得目前期數
             $opentime = DateTime::createFromFormat('H:i:s', $value['opentime']);
             $closetime = DateTime::createFromFormat('H:i:s', $value['closetime']);
@@ -115,7 +124,7 @@ class GameController extends Controller
         $ShowBetLists = $GameRepository->showbetlists($UserName);
         $ShowBetListsCount = $GameRepository->showbetlistscount($UserName);
 
-        
+
 
         return view('home.result', compact('ShowBetLists', 'UserName'));
     }

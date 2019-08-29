@@ -29,14 +29,14 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
-        $schedule->command('auto:update')
-                 ->everyMinute();
-        $schedule->command('command:dayissue')
-                 ->dailyAt('09:15');
-        $schedule->command('command:ResultCount')
-                 ->everyTenMinutes();
-        $schedule->command('command:close')
-                 ->everyMinutes();
+        // $schedule->command('auto:update')
+        //          ->everyMinute();
+        // $schedule->command('command:dayissue')
+        //          ->dailyAt('09:15');
+        // $schedule->command('command:ResultCount')
+        //          ->everyTenMinutes();
+        // $schedule->command('command:close')
+        //          ->everyMinutes();
 
     }
 
