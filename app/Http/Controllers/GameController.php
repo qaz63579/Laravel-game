@@ -110,55 +110,17 @@ class GameController extends Controller
     public function result()
     {
         $UserName = Session::get('UserName');
-        $dt = Carbon::now()->toTimeString();
-        $dt = str_replace(':', '', $dt);
+
         $GameRepository = new \App\Http\Repositories\GameRepository();
         $ShowBetLists = $GameRepository->showbetlists($UserName);
         $ShowBetListsCount = $GameRepository->showbetlistscount($UserName);
-        $i = 0;
 
-        while ($i < $ShowBetListsCount) {
-            $CloseTime = $ShowBetLists[$i]['closetime'];
-            $CloseTime = str_replace(':', '', $CloseTime);
+        
 
-            if ($dt > $CloseTime) {
-                $BetCode = $ShowBetLists[$i]['code'];
-                $BetCode_exp = explode(',', $BetCode);
-                $BetIssue = $ShowBetLists[$i]['issue'];
-                $GameCode = $GameRepository->gamecode($BetIssue);
-                $GameCode = $GameCode[0]['code'];
-                $GameCode_exp = explode('|', $GameCode);
-                $BetId = $ShowBetLists[$i]['id'];
-                $j = 0;
-                $win = 0;
-
-                while ($j < 5) {
-
-                    if ($BetCode_exp[$j] == $GameCode_exp[$j]) {
-                        $win = $win + 1;
-                        $j = $j + 1;
-                    } else {
-                        $j = $j + 1;
-                    }
-                }
-
-                $GetMoney = $ShowBetLists[$i]['money'] * $win * 2;
-                $GetMoney = $GetMoney - $ShowBetLists[$i]['money'];
-
-                if ($ShowBetLists[$i]['close'] == 'No') {
-                    $GameRepository->updatebetlist($BetId, $GetMoney, $UserName);
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, "http://bank:9090/insert?name=$UserName&money=$GetMoney");
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    $temp = curl_exec($ch);
-                    curl_close($ch);
-                }
-            }
-
-            $i++;
-        }
         return view('home.result', compact('ShowBetLists', 'UserName'));
     }
+
+
     public function info()
     {
         echo phpinfo();

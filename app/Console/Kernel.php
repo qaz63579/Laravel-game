@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\auto_insert::class,
         \App\Console\Commands\DayIssue::class,
+        \App\Console\Commands\count_result::class,
     ];
 
     /**
@@ -31,6 +32,8 @@ class Kernel extends ConsoleKernel
                  ->everyMinute();
         $schedule->command('command:dayissue')
                  ->dailyAt('09:15');
+        $schedule->command('command:ResultCount')
+                 ->everyTenMinutes();
 
     }
 

@@ -139,4 +139,31 @@ class GameRepository
                ->where('issue',$issue)
                ->update(['code'=>$code]);
     }
+
+    public function GetGift_NO()
+    {
+        $GetGift = new Betlist;
+        $data = $GetGift -> select()
+                         ->where('gift','No')
+                         ->where('close','Yes')
+                         ->get();
+        return $data;
+    }
+    public function GetCodeByIssue($issue)
+    {
+        $GetCode = new Gamelist;
+        $code = $GetCode->select('code')
+                        ->where('issue',$issue)
+                        ->get();
+        return $code;
+    }
+    public function UpdateBetlistGetMoney($id,$GetMoney)
+    {
+        $UpdateGetMoney = new Betlist;
+        $UpdateGetMoney->select('betlist')
+                       ->where('id',$id)
+                       ->update(['getmoney'=>$GetMoney,'gift'=>'Yes']);
+
+    }
+    
 }
