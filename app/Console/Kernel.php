@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\auto_insert::class,
+        \App\Console\Commands\DayIssue::class,
     ];
 
     /**
@@ -26,8 +27,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
-        // $schedule->command('auto:insert')
-        //          ->everyMinute();
+        $schedule->command('auto:update')
+                 ->everyMinute();
+        $schedule->command('command:dayissue')
+                 ->dailyAt('09:15');
 
     }
 

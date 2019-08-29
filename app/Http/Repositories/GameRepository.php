@@ -132,8 +132,11 @@ class GameRepository
         $insert->save();
     }
 
-    public function UpdateCode()
+    public function UpdateCode($issue,$code)
     {
-        
+        $update = new Gamelist;
+        $update->select('gamelist')
+               ->where('issue',$issue)
+               ->update(['code'=>$code]);
     }
 }

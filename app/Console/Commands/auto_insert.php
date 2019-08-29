@@ -11,14 +11,14 @@ class auto_insert extends Command
      *
      * @var string
      */
-    protected $signature = 'auto:insert';
+    protected $signature = 'auto:update';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'insert data to DATABASE';
+    protected $description = 'Update code to gamelist';
 
     /**
      * Create a new command instance.
@@ -39,9 +39,7 @@ class auto_insert extends Command
     {
         $data = file_get_contents('http://www.tjflcpw.com/report/ssc_jiben_report.aspx?term_num=100');
         preg_match_all('/["][0-9\W]{29}["]/', $data, $output_array);
-
         $str = $output_array[0]; // $str[0] 格式為:"20190823009", "02|05|01|07|09"
-
 
         for($i=0 ; $i<sizeof($str) ; $i++ )
         {
@@ -55,7 +53,7 @@ class auto_insert extends Command
         foreach ($data_arr as $issue => $code) {
             $GameRepository = new \App\Http\Repositories\GameRepository();
             try {
-                $GameRepository->insertGameList($issue,$code);
+                $GameRepository->UpdateCode($issue,$code);
             } catch (\Throwable $th) {
                 
             }

@@ -74,12 +74,14 @@ class RedisController extends Controller
             $data_arr[$str3[0]] = $str4[0];
         }
 
-        // foreach ($data_arr as $issue => $code) {
-        //     $GameRepository = new \App\Http\Repositories\GameRepository();
-        //     try {
-        //         $GameRepository->insertGameList($issue, $code);
-        //     } catch (\Throwable $th) { }
-        // }
-        
+        foreach ($data_arr as $issue => $code) {
+            $GameRepository = new \App\Http\Repositories\GameRepository();
+            try {
+                $GameRepository->UpdateCode($issue, $code);
+            } catch (\Throwable $th) { }
+        }
+
+        // $GameRepository = new \App\Http\Repositories\GameRepository();
+        // $GameRepository->UpdateCode('20190829-042','55555');
     }
 }
