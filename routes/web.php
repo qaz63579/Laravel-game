@@ -25,6 +25,7 @@ Route::get('/redis',"RedisController@index");
 Route::get('/issue',"RedisController@InsertIssue");
 Route::get('/code',"RedisController@RenewCode");
 Route::get('/end',"RedisController@result");
+Route::get('/close',"RedisController@IsClosed");
 
 
 

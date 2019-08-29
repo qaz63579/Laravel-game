@@ -165,5 +165,11 @@ class GameRepository
                        ->update(['getmoney'=>$GetMoney,'gift'=>'Yes']);
 
     }
-    
+    public function UpdateBetlistColseByIssue($issue)
+    {
+        $update = new Betlist;
+        $update->select()
+               ->where('issue',$issue)
+               ->update(['close'=>'Yes']);
+    }
 }

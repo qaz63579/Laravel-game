@@ -122,11 +122,11 @@ class RedisController extends Controller
                     $getmoney = 0;
                     break;
             }
-            if ($getmoney>0){
+            if ($getmoney > 0) {
                 $GameRepository->UpdateBetlistGetMoney($key['id'], $getmoney); //更新中獎金額
 
                 $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:9090/insert?name=".$key['name'] ."&money=$getmoney"); //派獎
+                curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:9090/insert?name=" . $key['name'] . "&money=$getmoney"); //派獎
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 $temp = curl_exec($ch);
                 curl_close($ch);
@@ -134,8 +134,17 @@ class RedisController extends Controller
         }
     }
 
-    public function IsClose()
+    public function IsClosed()
     {
-        
+        $GameRepository = new \App\Http\Repositories\GameRepository();
+        $TimeTable = $GameRepository->GetTimeTable();
+        $today = date('Ymd');
+        $now = date('H:i:s');
+
+        foreach ($TimeTable as $key => $value) {
+            if (DateTime::createFromFormat('H:i:s', $now) > DateTime::createFromFormat('H:i:s', $value['closetime']))
+                $issue = $today . '-' . $value['issue_num'];
+                $GameRepository->UpdateBetlistColseByIssue($issue);
+        }
     }
 }
