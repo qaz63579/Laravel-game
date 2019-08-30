@@ -3,22 +3,23 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use DateTime;
 
-class count_result extends Command
+class test extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'command:ResultCount';
+    protected $signature = 'test';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Count get money and gift money';
+    protected $description = 'test command';
 
     /**
      * Create a new command instance.
@@ -37,9 +38,11 @@ class count_result extends Command
      */
     public function handle()
     {
+
         $GameRepository = new \App\Http\Repositories\GameRepository();
         $BetRepo = new \App\Http\Repositories\BetRepository();
         $data = $BetRepo->GetStatus_1(); // should be status=1
+
 
         foreach ($data as $key) {
             $code = $GameRepository->GetCodeByIssue($key['issue']);
@@ -94,5 +97,7 @@ class count_result extends Command
             }
         }
 
+
+        echo "this is test \n\r";
     }
 }

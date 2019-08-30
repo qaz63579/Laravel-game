@@ -50,6 +50,8 @@ class GameController extends Controller
     public function postpay(Request $Request)
     {
         $UserName = Session::get('UserName');
+        $odds = $Request->gmae_type; //取得遊戲規則與賠率
+
         $million = $Request->million;
         $thousand = $Request->thousand;
         $hundred = $Request->hundred;
@@ -96,7 +98,7 @@ class GameController extends Controller
         $issue = $str . '-' . $issue;
 
 
-        $GameRepository->InsertBetlist($UserName, $issue, $code, $money); //新增下注資料
+        $GameRepository->InsertBetlist($UserName, $issue, $code, $money,$odds); //新增下注資料
 
 
         $ch = curl_init();
