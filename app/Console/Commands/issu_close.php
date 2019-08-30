@@ -39,6 +39,8 @@ class issu_close extends Command
     public function handle()
     {
         $GameRepository = new \App\Http\Repositories\GameRepository();
+        $BetRepo = new \App\Http\Repositories\BetRepository();
+
         $TimeTable = $GameRepository->GetTimeTable();
         $today = date('Ymd');
         $now = date('H:i:s');
@@ -46,7 +48,7 @@ class issu_close extends Command
         foreach ($TimeTable as $key => $value) {
             if (DateTime::createFromFormat('H:i:s', $now) > DateTime::createFromFormat('H:i:s', $value['closetime']))
                 $issue = $today . '-' . $value['issue_num'];
-                $GameRepository->UpdateBetlistColseByIssue($issue);
+                $BetRepo->UpdateBetlistColseByIssue($issue);
         }
     }
 }

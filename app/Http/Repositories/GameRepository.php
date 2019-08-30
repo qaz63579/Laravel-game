@@ -47,7 +47,7 @@ class GameRepository
     {
         $this->betlist = new Betlist;
         $ShowBetLists = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
-            ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney', 'betlist.close', 'betlist.gift')
+            ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney')
             ->where('betlist.name', $UserName)
             ->get();
         return $ShowBetLists;
@@ -110,66 +110,66 @@ class GameRepository
         return $data;
     }
 
-    public function InsertBetlist($name, $issue, $code, $money)
+    public function InsertBetlist($name, $issue, $code, $money, $odds)
     {
         $insert = new Betlist;
         $insert->name = $name;
         $insert->issue = $issue;
+        $insert->odds = $odds;
         $insert->code = $code;
         $insert->money = $money;
-        $insert->getmoney = '---';
-        $insert->close = 'No';
-        $insert->gift = 'No';
+        $insert->getmoney = $money * $odds;
+        $insert->status = 0;
         $insert->save();
     }
 
-    public function InsertDayIssue($issue,$opentime,$closetime)
+    public function InsertDayIssue($issue, $opentime, $closetime)
     {
         $insert = new Gamelist;
         $insert->issue = $issue;
-        $insert->opentime= $opentime;
-        $insert->closetime= $closetime;
+        $insert->opentime = $opentime;
+        $insert->closetime = $closetime;
         $insert->save();
     }
 
-    public function UpdateCode($issue,$code)
+    public function UpdateCode($issue, $code)
     {
         $update = new Gamelist;
         $update->select('gamelist')
-               ->where('issue',$issue)
-               ->update(['code'=>$code]);
+            ->where('issue', $issue)
+            ->update(['code' => $code]);
     }
 
     public function GetGift_NO()
     {
         $GetGift = new Betlist;
-        $data = $GetGift -> select()
-                         ->where('gift','No')
-                         ->where('close','Yes')
-                         ->get();
+        $data = $GetGift->select()
+            ->where('gift', 'No')
+            ->where('close', 'Yes')
+            ->get();
         return $data;
     }
     public function GetCodeByIssue($issue)
     {
         $GetCode = new Gamelist;
         $code = $GetCode->select('code')
-                        ->where('issue',$issue)
-                        ->get();
+            ->where('issue', $issue)
+            ->get();
         return $code;
     }
-    public function UpdateBetlistGetMoney($id,$GetMoney)
+    public function UpdateBetlistGetMoney($id, $GetMoney)
     {
         $UpdateGetMoney = new Betlist;
         $UpdateGetMoney->select('betlist')
-                       ->where('id',$id)
-                       ->update(['getmoney'=>$GetMoney,'gift'=>'Yes']);
-
+            ->where('id', $id)
+            ->update(['getmoney' => $GetMoney, 'gift' => 'Yes']);
     }
     public function UpdateBetlistColseByIssue($issue)
     {
         $update = new Betlist;
         $update->select()
-               ->where('issue',$issue)
-               ->update(['close'=>'Yes']);
+            ->where('issue', $issue)
+            ->update(['close' => 'Yes']);
     }
+    
 }
