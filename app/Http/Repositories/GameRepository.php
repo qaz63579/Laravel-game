@@ -46,10 +46,10 @@ class GameRepository
     public function showbetlists($UserName)
     {
         $this->betlist = new Betlist;
-        $ShowBetLists = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
-            ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney')
-            ->where('betlist.name', $UserName)
-            ->get();
+        $ShowBetLists = $this->betlist->select()
+                                      ->where('betlist.name', $UserName)
+                                      ->orderBy('id', 'desc')
+                                      ->get();
         return $ShowBetLists;
     }
 
@@ -129,6 +129,7 @@ class GameRepository
         $insert->issue = $issue;
         $insert->opentime = $opentime;
         $insert->closetime = $closetime;
+        $insert->status = 0 ;
         $insert->save();
     }
 
@@ -164,12 +165,14 @@ class GameRepository
             ->where('id', $id)
             ->update(['getmoney' => $GetMoney, 'gift' => 'Yes']);
     }
-    public function UpdateBetlistColseByIssue($issue)
+
+    public function UpdateGamelistColseByIssue($issue)
     {
-        $update = new Betlist;
+        $update = new Gamelist;
         $update->select()
-            ->where('issue', $issue)
-            ->update(['close' => 'Yes']);
+               ->where('issue',$issue)
+               ->where('status',0)
+               ->update(['status'=>1]);
     }
     
 }

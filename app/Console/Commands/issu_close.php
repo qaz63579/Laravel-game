@@ -49,6 +49,7 @@ class issu_close extends Command
             if (DateTime::createFromFormat('H:i:s', $now) > DateTime::createFromFormat('H:i:s', $value['closetime']))
                 $issue = $today . '-' . $value['issue_num'];
                 $BetRepo->UpdateBetlistColseByIssue($issue);
+                $GameRepository->UpdateGamelistColseByIssue($issue);
         }
     }
 }

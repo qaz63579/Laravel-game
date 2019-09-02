@@ -11,7 +11,7 @@
 |
 */
 Route::get('/', function () {
-    return view('welcome');
+    return view("home.index");
 });
 
 Route::get('/index',"GameController@index");
@@ -24,11 +24,18 @@ Route::post('/index/pay',"GameController@postpay");
 Route::get('/index/result',"GameController@result");
 Route::get('/info',"GameController@info");
 
+
+Route::get('/main',"GameController@main");
+
+
 Route::get('/redis',"RedisController@index");
 Route::get('/issue',"RedisController@InsertIssue");
 Route::get('/code',"RedisController@RenewCode");
 Route::get('/end',"RedisController@result");
 Route::get('/close',"RedisController@IsClosed");
+Route::get('/bootstrap',"RedisController@BootStrap");
+Route::get('/game',"RedisController@game");
+
 
 
 

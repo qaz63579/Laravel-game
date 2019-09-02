@@ -30,7 +30,8 @@ class GameController extends Controller
 
         if ($Login == 1) {
             Session::put('UserName', $UserName);
-            return redirect('/index/main');
+            // return redirect('/index/main');
+            return redirect('/main');
         }
     }
 
@@ -39,7 +40,10 @@ class GameController extends Controller
         $UserName = Session::get('UserName');
         $GameRepository = new \App\Http\Repositories\GameRepository();
         $ShowBetLists = $GameRepository->showbetlists($UserName);
-        return view("home.main", compact('ShowBetLists', 'UserName'));
+        // return view("home.main", compact('ShowBetLists', 'UserName'));
+        // echo $ShowBetLists;
+        return view("main", compact('ShowBetLists', 'UserName'));
+
     }
 
     public function pay()
@@ -134,8 +138,8 @@ class GameController extends Controller
 
     public function info()
     {
-        echo phpinfo();
-        return "";
+        
+        return view("home");
     }
 
     
