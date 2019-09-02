@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Dashboard</div>
+                <div class="card-header">Hi !  {{ Auth::user()->name }}</div>
 
                 <div class="card-body">
                     @if (session('status'))
@@ -14,7 +14,9 @@
                         </div>
                     @endif
 
-                    You are logged in!
+                    目前金額 : {{$mymoney}}<p>
+                    <a  class="btn btn-primary" href="/index/pay">下注</a>
+                    <a  class="btn btn-primary" href="/main">查詢注單</a>
                 </div>
             </div>
         </div>

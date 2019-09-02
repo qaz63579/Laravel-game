@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Session;
 use Carbon\Carbon;
 use App\Http\Repositories\GameRepository;
@@ -37,12 +38,19 @@ class GameController extends Controller
 
     public function main()
     {
-        $UserName = Session::get('UserName');
-        $GameRepository = new \App\Http\Repositories\GameRepository();
-        $ShowBetLists = $GameRepository->showbetlists($UserName);
-        // return view("home.main", compact('ShowBetLists', 'UserName'));
-        // echo $ShowBetLists;
-        return view("main", compact('ShowBetLists', 'UserName'));
+        if(Auth::check()){
+            // $UserName = Session::get('UserName');
+            $UserName = Auth::user()->name;
+            $GameRepository = new \App\Http\Repositories\GameRepository();
+            // echo $UserName;
+            $ShowBetLists = $GameRepository->showbetlists($UserName);
+            // return view("home.main", compact('ShowBetLists', 'UserName'));
+            // echo $ShowBetLists;
+            return view("main", compact('ShowBetLists', 'UserName'));
+        }else{
+            return view("home");
+        }
+
 
     }
 
@@ -53,7 +61,8 @@ class GameController extends Controller
 
     public function postpay(Request $Request)
     {
-        $UserName = Session::get('UserName');
+        // $UserName = Session::get('UserName');
+        $UserName = Auth::user()->name;
         $odds = $Request->gmae_type; //取得遊戲規則與賠率
 
         $million = $Request->million;
@@ -96,13 +105,14 @@ class GameController extends Controller
             $closetime = DateTime::createFromFormat('H:i:s', $value['closetime']);
             if ($now >= $opentime && $now <= $closetime) {
                 $issue = $value['issue_num'];
+                $myclosetime = $closetime;
             }
         }
         $str = str_replace('-', '', $dt->toDateString());
         $issue = $str . '-' . $issue;
 
 
-        $GameRepository->InsertBetlist($UserName, $issue, $code, $money,$odds); //新增下注資料
+        $GameRepository->InsertBetlist($UserName, $issue, $code, $money,$odds,$myclosetime); //新增下注資料
 
 
         $ch = curl_init();

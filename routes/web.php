@@ -11,7 +11,7 @@
 |
 */
 Route::get('/', function () {
-    return view("home.index");
+    return redirect('/home');
 });
 
 Route::get('/index',"GameController@index");
@@ -41,3 +41,6 @@ Route::get('/game',"RedisController@game");
 
 // Route::get('/server',"GameController@server");
 // Route::get('/content',"ContentController@index");
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

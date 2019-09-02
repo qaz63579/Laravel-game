@@ -46,9 +46,10 @@ class GameRepository
     public function showbetlists($UserName)
     {
         $this->betlist = new Betlist;
-        $ShowBetLists = $this->betlist->select()
+        $ShowBetLists = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
+                                      ->select('betlist.code','betlist.money','betlist.status','betlist.getmoney','betlist.getmoney','betlist.odds','betlist.issue','gamelist.closetime','gamelist.closetime')
                                       ->where('betlist.name', $UserName)
-                                      ->orderBy('id', 'desc')
+                                      ->orderBy('betlist.id', 'desc')
                                       ->get();
         return $ShowBetLists;
     }
@@ -110,7 +111,7 @@ class GameRepository
         return $data;
     }
 
-    public function InsertBetlist($name, $issue, $code, $money, $odds)
+    public function InsertBetlist($name, $issue, $code, $money, $odds,$closetime)
     {
         $insert = new Betlist;
         $insert->name = $name;
@@ -118,6 +119,7 @@ class GameRepository
         $insert->odds = $odds;
         $insert->code = $code;
         $insert->money = $money;
+        $insert->closetime=$closetime;
         $insert->getmoney = $money * $odds;
         $insert->status = 0;
         $insert->save();

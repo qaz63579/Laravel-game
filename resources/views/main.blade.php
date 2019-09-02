@@ -22,8 +22,12 @@
                     
                     @if ($item->status == 2)
                         輸贏金額 : -{{$item->money}}
-                    @else
-                        輸贏金額 : {{$item->getmoney}}
+                    @elseif($item->status == 3)
+                    <p class="bg-danger text-white">輸贏金額 : {{$item->getmoney}}</p>
+                    @elseif($item->status == 0)
+                        尚未關盤
+                    @elseif($item->status == 1)
+                        已關盤，等待結算。
                     @endif
                 
                 </div>
