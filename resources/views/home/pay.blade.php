@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Pay</title>
-</head>
+
+@extends('layouts.app')
+
+@section('content')
 <body>
-    <form method="POST" action="/index/pay">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                        <form method="POST" action="/index/pay">
         @csrf
         <select name="gmae_type">
             　<option value="3">買五中三，賠率3</option>
@@ -23,7 +22,14 @@
         <hr>
 		下注：<input type="text" name="money"/>
         <input type="submit" value="付款"/>	
-        <a href="/index/main "><label for="male">回首頁</a>
+        <a href="/home "><label for="male">回首頁</a>
 	</form>
+
+                </div>
+            </div>
+        </div>
+
+
+
 </body>
-</html>
+@endsection

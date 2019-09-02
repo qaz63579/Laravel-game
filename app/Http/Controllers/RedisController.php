@@ -148,4 +148,13 @@ class RedisController extends Controller
                 $GameRepository->UpdateBetlistColseByIssue($issue);
         }
     }
+
+    public function BootStrap()
+    {
+        return view("boot");
+    }
+    public function game()
+    {
+        return view("login");
+    }
 }

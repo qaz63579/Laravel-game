@@ -46,7 +46,12 @@ class DayIssue extends Command
                 $issue = $today . '-' . $TimeTable[$x]['issue_num'];
                 $opentime = $TimeTable[$x]['opentime'];
                 $closetime = $TimeTable[$x]['closetime'];
-                $GameRepository->InsertDayIssue($issue, $opentime, $closetime);
+                try {
+                    $GameRepository->InsertDayIssue($issue, $opentime, $closetime);
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+                
             }
         }
         return;

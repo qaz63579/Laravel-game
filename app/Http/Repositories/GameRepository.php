@@ -47,9 +47,10 @@ class GameRepository
     {
         $this->betlist = new Betlist;
         $ShowBetLists = $this->betlist->join('gamelist', 'betlist.issue', '=', 'gamelist.issue')
-            ->select('betlist.id', 'betlist.issue', 'betlist.code', 'betlist.money', 'gamelist.closetime', 'betlist.getmoney')
-            ->where('betlist.name', $UserName)
-            ->get();
+                                      ->select('betlist.code','betlist.money','betlist.status','betlist.getmoney','betlist.getmoney','betlist.odds','betlist.issue','gamelist.closetime','gamelist.closetime')
+                                      ->where('betlist.name', $UserName)
+                                      ->orderBy('betlist.id', 'desc')
+                                      ->get();
         return $ShowBetLists;
     }
 
@@ -110,7 +111,7 @@ class GameRepository
         return $data;
     }
 
-    public function InsertBetlist($name, $issue, $code, $money, $odds)
+    public function InsertBetlist($name, $issue, $code, $money, $odds,$closetime)
     {
         $insert = new Betlist;
         $insert->name = $name;
@@ -118,6 +119,7 @@ class GameRepository
         $insert->odds = $odds;
         $insert->code = $code;
         $insert->money = $money;
+        $insert->closetime=$closetime;
         $insert->getmoney = $money * $odds;
         $insert->status = 0;
         $insert->save();
@@ -129,6 +131,7 @@ class GameRepository
         $insert->issue = $issue;
         $insert->opentime = $opentime;
         $insert->closetime = $closetime;
+        $insert->status = 0 ;
         $insert->save();
     }
 
@@ -164,12 +167,14 @@ class GameRepository
             ->where('id', $id)
             ->update(['getmoney' => $GetMoney, 'gift' => 'Yes']);
     }
-    public function UpdateBetlistColseByIssue($issue)
+
+    public function UpdateGamelistColseByIssue($issue)
     {
-        $update = new Betlist;
+        $update = new Gamelist;
         $update->select()
-            ->where('issue', $issue)
-            ->update(['close' => 'Yes']);
+               ->where('issue',$issue)
+               ->where('status',0)
+               ->update(['status'=>1]);
     }
     
 }
