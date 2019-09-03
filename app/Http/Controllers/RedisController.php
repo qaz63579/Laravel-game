@@ -32,7 +32,7 @@ class RedisController extends Controller
             return '一秒只能連線一次';
         } else {
             Redis::set($name, md5($str));
-            Redis::expire($name,3);
+            Redis::expire($name, 3);
         }
 
 
@@ -145,7 +145,7 @@ class RedisController extends Controller
         foreach ($TimeTable as $key => $value) {
             if (DateTime::createFromFormat('H:i:s', $now) > DateTime::createFromFormat('H:i:s', $value['closetime']))
                 $issue = $today . '-' . $value['issue_num'];
-                $GameRepository->UpdateBetlistColseByIssue($issue);
+            $GameRepository->UpdateBetlistColseByIssue($issue);
         }
     }
 
