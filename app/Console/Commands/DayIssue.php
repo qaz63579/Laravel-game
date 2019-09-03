@@ -51,9 +51,7 @@ class DayIssue extends Command
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
-                
             }
         }
-        return;
     }
 }
