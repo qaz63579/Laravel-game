@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Datetime;
 use App\Http\Repositories\GameRepository;
+use Illuminate\Support\Facades\DB;
+use App\Betlist;
 
 class RedisController extends Controller
 {
@@ -155,6 +157,13 @@ class RedisController extends Controller
     }
     public function game()
     {
-        return view("login");
+        $data = DB::connection('pi')->table('menber')->select()->get();
+
+
+
+        $data2 = new Betlist;
+        $data2 = $data2->get();
+
+        return $data2;
     }
 }
