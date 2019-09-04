@@ -38,17 +38,31 @@ class test extends Command
      */
     public function handle()
     {
-        // while (true) { }
+        while (true) {
+            $this->update_code();
+            $this->count_result();
+            $this->issue_close();
+            sleep(3);
+        }
 
         echo "this is test \n\r";
     }
 
     public function update_code()
     {
-        $data = file_get_contents('http://www.tjflcpw.com/report/ssc_jiben_report.aspx?term_num=100');
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "http://www.tjflcpw.com/report/ssc_jiben_report.aspx?term_num=100");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($ch);
+        curl_close($ch);
+
+
+        // $data = file_get_contents('http://www.tjflcpw.com/report/ssc_jiben_report.aspx?term_num=100');
         preg_match_all('/["][0-9\W]{29}["]/', $data, $output_array);
         $str = $output_array[0]; // $str[0] 格式為:"20190823009", "02|05|01|07|09"
 
+
+        $data_arr = array();
         for ($i = 0; $i < sizeof($str); $i++) {
             $str2 = preg_replace('/[2][0-9]{7}/', '$0-', $str[$i]); // str2 = "20190823-009", "02|05|01|07|09"
             preg_match('/[2][0-9\W]{11}/', $str2, $str3); // $str3[0] = "20190823-008"
@@ -134,10 +148,11 @@ class test extends Command
         $now = date('H:i:s');
 
         foreach ($TimeTable as $key => $value) {
-            if (DateTime::createFromFormat('H:i:s', $now) > DateTime::createFromFormat('H:i:s', $value['closetime']))
+            if (DateTime::createFromFormat('H:i:s', $now) > DateTime::createFromFormat('H:i:s', $value['closetime'])) {
                 $issue = $today . '-' . $value['issue_num'];
-            $BetRepo->UpdateBetlistColseByIssue($issue);
-            $GameRepository->UpdateGamelistColseByIssue($issue);
+                $BetRepo->UpdateBetlistColseByIssue($issue);
+                $GameRepository->UpdateGamelistColseByIssue($issue);
+            }
         }
     }
 }
