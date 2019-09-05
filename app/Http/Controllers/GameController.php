@@ -38,7 +38,7 @@ class GameController extends Controller
 
     public function main()
     {
-        if(Auth::check()){
+        if (Auth::check()) {
             // $UserName = Session::get('UserName');
             $UserName = Auth::user()->name;
             $GameRepository = new \App\Http\Repositories\GameRepository();
@@ -47,11 +47,9 @@ class GameController extends Controller
             // return view("home.main", compact('ShowBetLists', 'UserName'));
             // echo $ShowBetLists;
             return view("main", compact('ShowBetLists', 'UserName'));
-        }else{
+        } else {
             return view("home");
         }
-
-
     }
 
     public function pay()
@@ -95,7 +93,7 @@ class GameController extends Controller
             return '一秒只能連線一次';
         } else {
             Redis::set($UserName, md5($str));
-            Redis::expire($UserName,3);
+            Redis::expire($UserName, 3);
         }
 
         $GameRepository = new GameRepository;
@@ -112,7 +110,7 @@ class GameController extends Controller
         $issue = $str . '-' . $issue;
 
 
-        $GameRepository->InsertBetlist($UserName, $issue, $code, $money,$odds,$myclosetime); //新增下注資料
+        $GameRepository->InsertBetlist($UserName, $issue, $code, $money, $odds, $myclosetime); //新增下注資料
 
 
         $ch = curl_init();
@@ -123,12 +121,6 @@ class GameController extends Controller
         echo '下注完成,扣款成功';
 
         return redirect('/index/main');
-
-
-
-
-
-
         return $issue;
     }
 
@@ -148,10 +140,25 @@ class GameController extends Controller
 
     public function info()
     {
-        
+
         return view("home");
     }
 
-    
+    public function SearchCode(Request $Request)
+    {
+        $data_arr = array();
+        $GameRepo = new GameRepository;
+        $data_arr = $GameRepo->GetListByDate(str_replace('-', '', $Request->date));
 
+        return view('SearchCode', ['data_arr' => $data_arr, 'date' => $Request->date]);
+    }
+
+    public function SearchAdmin(Request $Request)
+    {
+        $data_arr = array();
+        $GameRepo = new GameRepository;
+        $data_arr = $GameRepo->GetListByDate(str_replace('-', '', $Request->date));
+
+        return view('SearchCode', ['data_arr' => $data_arr, 'date' => $Request->date]);
+    }
 }

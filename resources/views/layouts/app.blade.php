@@ -27,6 +27,7 @@
     setInterval(myDate,100);
 
     </script>
+    @yield('javascript')
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
