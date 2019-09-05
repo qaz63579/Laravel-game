@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Auth;
+use date;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -31,6 +32,7 @@ class HomeController extends Controller
         $temp = curl_exec($ch);
         curl_close($ch);
         $isTrue = json_decode($temp, true);
-        return view('home',['mymoney'=>$isTrue['money']]);
+        $date = date('Y-m-d');
+        return view('home', ['mymoney' => $isTrue['money'], 'date' => $date]);
     }
 }
