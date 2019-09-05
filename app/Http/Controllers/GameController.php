@@ -153,12 +153,20 @@ class GameController extends Controller
         return view('SearchCode', ['data_arr' => $data_arr, 'date' => $Request->date]);
     }
 
-    public function SearchAdmin(Request $Request)
+    public function SearchAdmin()
     {
         $data_arr = array();
-        $GameRepo = new GameRepository;
-        $data_arr = $GameRepo->GetListByDate(str_replace('-', '', $Request->date));
 
-        return view('SearchCode', ['data_arr' => $data_arr, 'date' => $Request->date]);
+        return view('SearchAdmin', ['data_arr' => $data_arr]);
+    }
+
+    public function SearchAdminPost(Request $Request)
+    {
+        $data_arr = array();
+
+        $input = $Request->all();
+        $GameRepo = new GameRepository;
+        $data_arr = $GameRepo->GetListByIssue_ID_Stasus($input['issue'], $input['id'], $input['status']);
+        return view('SearchAdmin', ['data_arr' => $data_arr]);
     }
 }
