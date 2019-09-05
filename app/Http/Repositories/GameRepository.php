@@ -185,4 +185,15 @@ class GameRepository
             ->get();
         return $data;
     }
+    public function GetListByIssue_ID_Stasus($issue, $id, $status)
+    {
+        $get = new Betlist;
+        $data = $get->select()
+            ->where('issue', 'like', $issue . '%')
+            ->where('id', 'like', $id . '%')
+            ->where('status', 'like', $status . '%')
+            ->get();
+
+        return $data;
+    }
 }

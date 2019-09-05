@@ -17,7 +17,7 @@
                     目前金額 : {{$mymoney}}<p>
                     <a  class="btn btn-primary" href="/index/pay">下注</a>
                     <a  class="btn btn-primary" href="/main">查詢注單(byUser)</a>
-                    <a  class="btn btn-primary" href="/main">查詢注單(Admin)</a>
+                    <a  class="btn btn-primary" href="/search/admin">查詢注單(Admin)</a>
                     <a  class="btn btn-primary" href="/search/code?date={{$date}}">賽果查詢</a>
                 </div>
             </div>
