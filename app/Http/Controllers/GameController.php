@@ -7,11 +7,18 @@ use Illuminate\Support\Facades\Auth;
 use Session;
 use Carbon\Carbon;
 use App\Http\Repositories\GameRepository;
+use App\Services\GameRecommand;
 use Illuminate\Support\Facades\Redis;
 use Datetime;
 
 class GameController extends Controller
 {
+    protected $GameReco;
+
+    function __construct()
+    {
+        $this->GameReco = new GameRecommand;
+    }
     public function index()
     {
         if (Session::has('UserName')) {
@@ -22,54 +29,37 @@ class GameController extends Controller
         }
     }
 
-    public function login(Request $Request)
-    {
-        $UserName = $Request->UserName;
-        $PassWord = $Request->PassWord;
-        $GameRepository = new \App\Http\Repositories\GameRepository();
-        $Login = $GameRepository->login($UserName, $PassWord);
+    // public function login(Request $Request)
+    // {
+    //     $UserName = $Request->UserName;
+    //     $PassWord = $Request->PassWord;
+    //     $GameRepository = new \App\Http\Repositories\GameRepository();
+    //     $Login = $GameRepository->login($UserName, $PassWord);
 
-        if ($Login == 1) {
-            Session::put('UserName', $UserName);
-            // return redirect('/index/main');
-            return redirect('/main');
-        }
-    }
+    //     if ($Login == 1) {
+    //         Session::put('UserName', $UserName);
+    //         return redirect('/main');
+    //     }
+    // }
 
     public function main()
     {
         if (Auth::check()) {
-            // $UserName = Session::get('UserName');
             $UserName = Auth::user()->name;
-            $GameRepository = new \App\Http\Repositories\GameRepository();
-            // echo $UserName;
-            $ShowBetLists = $GameRepository->showbetlists($UserName);
-            // return view("home.main", compact('ShowBetLists', 'UserName'));
-            // echo $ShowBetLists;
+            $ShowBetLists = $this->GameReco->Data_For_main($UserName);
             return view("main", compact('ShowBetLists', 'UserName'));
         } else {
             return view("home");
         }
     }
-
-    public function pay()
-    {
-        return view("home.pay");
-    }
-
     public function postpay(Request $Request)
     {
-        // $UserName = Session::get('UserName');
+
         $UserName = Auth::user()->name;
         $odds = $Request->gmae_type; //取得遊戲規則與賠率
-
-        $million = $Request->million;
-        $thousand = $Request->thousand;
-        $hundred = $Request->hundred;
-        $ten = $Request->ten;
-        $one = $Request->one;
-        $code = '0' . $million . ',0' . $thousand . ',0' . $hundred . ',0' . $ten . ',0' . $one;
+        $code = $this->GameReco->Get_code_postpay($Request);
         $money = $Request->money;
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:9090/search?name=$UserName");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -121,52 +111,26 @@ class GameController extends Controller
         echo '下注完成,扣款成功';
 
         return redirect('/index/main');
-        return $issue;
     }
 
-    public function result()
-    {
-        $UserName = Session::get('UserName');
-
-        $GameRepository = new \App\Http\Repositories\GameRepository();
-        $ShowBetLists = $GameRepository->showbetlists($UserName);
-        $ShowBetListsCount = $GameRepository->showbetlistscount($UserName);
-
-
-
-        return view('home.result', compact('ShowBetLists', 'UserName'));
-    }
-
-
-    public function info()
-    {
-
-        return view("home");
-    }
 
     public function SearchCode(Request $Request)
     {
         $data_arr = array();
-        $GameRepo = new GameRepository;
-        $data_arr = $GameRepo->GetListByDate(str_replace('-', '', $Request->date));
-
+        $data_arr = $this->GameReco->Data_For_SearchCode($Request);
         return view('SearchCode', ['data_arr' => $data_arr, 'date' => $Request->date]);
     }
 
     public function SearchAdmin()
     {
         $data_arr = array();
-
         return view('SearchAdmin', ['data_arr' => $data_arr]);
     }
 
     public function SearchAdminPost(Request $Request)
     {
         $data_arr = array();
-
-        $input = $Request->all();
-        $GameRepo = new GameRepository;
-        $data_arr = $GameRepo->GetListByIssue_ID_Stasus($input['issue'], $input['id'], $input['status']);
+        $data_arr = $this->GameReco->Data_For_SearchAdmnPost($Request);
         return view('SearchAdmin', ['data_arr' => $data_arr]);
     }
 }

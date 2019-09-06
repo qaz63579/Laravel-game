@@ -151,10 +151,6 @@ class RedisController extends Controller
         }
     }
 
-    public function BootStrap()
-    {
-        return view("boot");
-    }
     public function game()
     {
         $data = DB::connection('pi')->table('menber')->select()->get();
