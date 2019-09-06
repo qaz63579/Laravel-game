@@ -7,6 +7,9 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+use App\Events\UserPostBetlist;
+use App\Events\UserPostBetlistException;
+
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -17,6 +20,12 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        UserPostBetlist::class => [
+            PostLogging::class,
+        ],
+        UserPostBetlistException::class => [
+            PostLoggingException::class,
         ],
     ];
 
