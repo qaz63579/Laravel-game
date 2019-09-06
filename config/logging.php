@@ -2,6 +2,10 @@
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
+use Date;
+
+$year = date('Y');
+$hour = date('H');
 
 return [
 
@@ -16,7 +20,8 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    // 'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => 'single',
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +47,7 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/' . $year . '/' . $hour . '/laravel.log'),
             'level' => 'debug',
         ],
 

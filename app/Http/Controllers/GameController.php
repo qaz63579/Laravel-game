@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserPostBetlist;
+use App\Events\UserPostBetlistException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Session;
@@ -10,6 +12,9 @@ use App\Http\Repositories\GameRepository;
 use App\Services\GameRecommand;
 use Illuminate\Support\Facades\Redis;
 use Datetime;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\TryCatch;
 
 class GameController extends Controller
 {
@@ -52,6 +57,11 @@ class GameController extends Controller
             return view("home");
         }
     }
+    public function pay()
+    {
+        return view("home.pay");
+    }
+
     public function postpay(Request $Request)
     {
 
@@ -99,8 +109,14 @@ class GameController extends Controller
         $str = str_replace('-', '', $dt->toDateString());
         $issue = $str . '-' . $issue;
 
+        try { //LOG成功或失敗的資料
+            $GameRepository->InsertBetlist($UserName, $issue, $code, $money, $odds, $myclosetime); //新增下注資料
+        } catch (Exception $e) {
+            event(new UserPostBetlistException($e));
+            return 'something error';
+        }
+        event(new UserPostBetlist($Request));
 
-        $GameRepository->InsertBetlist($UserName, $issue, $code, $money, $odds, $myclosetime); //新增下注資料
 
 
         $ch = curl_init();
@@ -118,6 +134,7 @@ class GameController extends Controller
     {
         $data_arr = array();
         $data_arr = $this->GameReco->Data_For_SearchCode($Request);
+
         return view('SearchCode', ['data_arr' => $data_arr, 'date' => $Request->date]);
     }
 
@@ -130,7 +147,15 @@ class GameController extends Controller
     public function SearchAdminPost(Request $Request)
     {
         $data_arr = array();
-        $data_arr = $this->GameReco->Data_For_SearchAdmnPost($Request);
+
+        try {
+            $data_arr = $this->GameReco->Data_For_SearchAdmnPost($Request);
+        } catch (Exception $e) {
+            event(new UserPostBetlistException($e));
+            return 'something error';
+        }
+        event(new UserPostBetlist($Request));
+
         return view('SearchAdmin', ['data_arr' => $data_arr]);
     }
 }
