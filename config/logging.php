@@ -47,7 +47,7 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/' . $year . '/' . $date . '/' . $hour . '/laravel.log'),
+            'path' => storage_path('logs/' . $year  . $date . '/' . $hour . '-laravel.log'),
             'level' => 'debug',
         ],
 
