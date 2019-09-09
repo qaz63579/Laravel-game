@@ -30,16 +30,9 @@ class PostLogging
     {
         //
         $Request = $event->Request;
-        Log::channel('single')->info("Success Post with follow value \r\n", [
-            'game_type' => $Request->gmae_type,
-            'million' => $Request->million,
-            'thousand' => $Request->thousand,
-            'hundred' => $Request->hundred,
-            'ten' => $Request->ten,
-            'one' => $Request->one,
-            'money' => $Request->money
-        ]);
-        // info('do something' . $Request->getMessage());
-
+        Log::channel('single')->info(
+            "Success Post with follow value \r\n",
+            $Request->all()
+        );
     }
 }
