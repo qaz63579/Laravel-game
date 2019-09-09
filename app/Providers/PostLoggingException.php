@@ -28,6 +28,7 @@ class PostLoggingException
     public function handle(UserPostBetlistException $event)
     {
         $e = $event->e;
-        Log::error("Data Base Error \n\r" . $e->getMessage());
+        // Log::error("Data Base Error \n\r" . $e->getMessage());
+        Log::channel('single')->error("Data Base Error \n\r" . $e->getMessage());
     }
 }

@@ -13,8 +13,7 @@ use App\Services\GameRecommand;
 use Illuminate\Support\Facades\Redis;
 use Datetime;
 use Exception;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\TryCatch;
+
 
 class GameController extends Controller
 {
@@ -24,15 +23,15 @@ class GameController extends Controller
     {
         $this->GameReco = new GameRecommand;
     }
-    public function index()
-    {
-        if (Session::has('UserName')) {
-            Session::forget('UserName');
-            return view("home.index");
-        } else {
-            return view("home.index");
-        }
-    }
+    // public function index()
+    // {
+    //     if (Session::has('UserName')) {
+    //         Session::forget('UserName');
+    //         return view("home.index");
+    //     } else {
+    //         return view("home.index");
+    //     }
+    // }
 
     // public function login(Request $Request)
     // {
