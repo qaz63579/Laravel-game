@@ -23,29 +23,6 @@ class GameController extends Controller
     {
         $this->GameReco = new GameRecommand;
     }
-    // public function index()
-    // {
-    //     if (Session::has('UserName')) {
-    //         Session::forget('UserName');
-    //         return view("home.index");
-    //     } else {
-    //         return view("home.index");
-    //     }
-    // }
-
-    // public function login(Request $Request)
-    // {
-    //     $UserName = $Request->UserName;
-    //     $PassWord = $Request->PassWord;
-    //     $GameRepository = new \App\Http\Repositories\GameRepository();
-    //     $Login = $GameRepository->login($UserName, $PassWord);
-
-    //     if ($Login == 1) {
-    //         Session::put('UserName', $UserName);
-    //         return redirect('/main');
-    //     }
-    // }
-
     public function main()
     {
         if (Auth::check()) {
@@ -108,7 +85,7 @@ class GameController extends Controller
         $str = str_replace('-', '', $dt->toDateString());
         $issue = $str . '-' . $issue;
 
-        try { //LOG成功或失敗的資料
+        try { //紀錄成功或失敗的資料
             $GameRepository->InsertBetlist($UserName, $issue, $code, $money, $odds, $myclosetime); //新增下注資料
         } catch (Exception $e) {
             event(new UserPostBetlistException($e));
